@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { CampaignStatusChanger } from './CampaignStatusChanger'
 import type { Channel } from '@/lib/utils/communication'
 import { cn } from '@/lib/utils'
+import { AiSummaryButton } from '@/components/shared/AiSummaryButton'
 
 export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -53,6 +54,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
           )}
         </div>
         <CampaignStatusChanger campaignId={id} currentStatus={campaign.status} />
+        <AiSummaryButton campaignId={id} />
       </div>
 
       {/* Money block */}

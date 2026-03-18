@@ -5,6 +5,10 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(_req: NextRequest) {
   try {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
     const [{ data: completedCampaigns }, { data: pendingPayments }, { data: upcomingCampaigns }] = await Promise.all([

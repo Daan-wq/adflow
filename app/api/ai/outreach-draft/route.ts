@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
     const { page_id, campaign_brief } = schema.parse(body)
 
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const { data: page } = await supabase
       .from('pages')
       .select('handle, niche, communication_channel, contact_name')

@@ -91,7 +91,21 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         {(campaign.campaign_pages ?? []).length === 0 && (
           <p className="text-gray-400 text-sm">No pages assigned.</p>
         )}
-        {(campaign.campaign_pages ?? []).map((cp: any) => (
+        {(campaign.campaign_pages ?? []).map((cp: {
+          id: string
+          status: string
+          cost: number
+          scheduled_date: string | null
+          reach: number | null
+          impressions: number | null
+          clicks: number | null
+          pages?: {
+            handle: string
+            niche: string | null
+            communication_channel: string
+            communication_handle: string | null
+          } | null
+        }) => (
           <div key={cp.id} className="p-4 rounded-lg border bg-white">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">

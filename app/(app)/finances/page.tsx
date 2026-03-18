@@ -84,7 +84,7 @@ export default async function FinancesPage() {
         <div>
           <h2 className="text-lg font-semibold mb-3">Top Clients by Margin</h2>
           <div className="rounded-md border bg-white divide-y">
-            {(topClients ?? []).map((c: any, i: number) => (
+            {(topClients ?? []).map((c: { id: string; name: string; total_margin: number; total_campaigns: number }, i: number) => (
               <div key={c.id} className="flex items-center justify-between p-3">
                 <div className="flex items-center gap-3">
                   <span className="text-gray-400 text-sm font-mono w-5">#{i + 1}</span>
@@ -104,7 +104,7 @@ export default async function FinancesPage() {
       <div>
         <h2 className="text-lg font-semibold mb-3">Recent Payments</h2>
         <div className="rounded-md border bg-white divide-y">
-          {(recentPayments ?? []).map((p: any) => (
+          {(recentPayments ?? []).map((p: { id: string; direction: string; amount: number; status: string; clients?: { name: string } | null; pages?: { handle: string } | null }) => (
             <div key={p.id} className="flex items-center justify-between p-3 text-sm">
               <div>
                 <span className={p.direction === 'incoming' ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>

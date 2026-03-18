@@ -16,7 +16,7 @@ export function RevenueChart({ data }: { data: DataPoint[] }) {
       <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `€${v}`} />
-        <Tooltip formatter={(value: any) => `€${value.toFixed(2)}`} />
+        <Tooltip formatter={(value: any) => `€${(value ?? 0).toFixed(2)}`} />
         <Legend />
         <Bar dataKey="revenue" name="Revenue" fill="#94a3b8" radius={[2, 2, 0, 0]} />
         <Bar dataKey="margin" name="Margin" fill="#22c55e" radius={[2, 2, 0, 0]} />

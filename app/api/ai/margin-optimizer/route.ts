@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { anthropic, getModel } from '@/lib/ai/client'
+import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -16,6 +17,12 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const data = schema.parse(body)
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const totalCurrent = data.pages.reduce((s, p) => s + p.current_cost, 0)
     const targetCost = data.client_pays * (1 - data.target_margin_pct / 100)
 

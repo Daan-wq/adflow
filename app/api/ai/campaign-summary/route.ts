@@ -11,6 +11,10 @@ export async function POST(req: NextRequest) {
     const { campaign_id } = schema.parse(body)
 
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const { data: campaign } = await supabase
       .from('campaigns')
       .select('*, clients(name), campaign_pages(cost, reach, impressions, clicks, pages(handle))')

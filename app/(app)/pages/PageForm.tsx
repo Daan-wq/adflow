@@ -44,7 +44,16 @@ interface PageFormProps {
   action: (fd: FormData) => Promise<void>
 }
 
+function extractHandle(url: string): string {
+  try {
+    const parts = new URL(url).pathname.split('/').filter(Boolean)
+    if (parts.length > 0) return parts[parts.length - 1].replace('@', '')
+  } catch {}
+  return ''
+}
+
 export function PageForm({ page, action }: PageFormProps) {
+  const [handle, setHandle] = useState(page?.handle ?? '')
   const [audienceRows, setAudienceRows] = useState<Array<{ country: string; pct: number }>>(
     page?.audience_country_pct ?? []
   )
@@ -57,7 +66,8 @@ export function PageForm({ page, action }: PageFormProps) {
           id="handle"
           name="handle"
           placeholder="@pagename"
-          defaultValue={page?.handle ?? ''}
+          value={handle}
+          onChange={e => setHandle(e.target.value)}
           required
         />
       </div>
@@ -184,7 +194,22 @@ export function PageForm({ page, action }: PageFormProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="page_link">Page Link</Label>
-        <Input id="page_link" name="page_link" type="url" placeholder="https://instagram.com/..." defaultValue={page?.page_link ?? ''} />
+        <Input
+          id="page_link"
+          name="page_link"
+          type="url"
+          placeholder="https://instagram.com/..."
+          defaultValue={page?.page_link ?? ''}
+          onChange={e => {
+            const extracted = extractHandle(e.target.value)
+            if (extracted && !handle) setHandle(extracted)
+          }}
+          onPaste={e => {
+            const pasted = e.clipboardData.getData('text')
+            const extracted = extractHandle(pasted)
+            if (extracted) setHandle(extracted)
+          }}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="analytic_proof_url">Analytic Proof URL</Label>

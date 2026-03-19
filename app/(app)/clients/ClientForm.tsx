@@ -25,6 +25,7 @@ interface Client {
   communication_handle: string | null
   notes: string | null
   status: string
+  country: string | null
   total_spent: number | null
   created_at: string | null
   updated_at: string | null
@@ -97,6 +98,13 @@ export function ClientForm({ client, action }: ClientFormProps) {
             ))}
           </select>
         </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="country">Country</Label>
+          <Input id="country" name="country" placeholder="e.g. Netherlands" defaultValue={client?.country ?? ''} />
+        </div>
+        <div></div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>

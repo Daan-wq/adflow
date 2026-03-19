@@ -10,6 +10,7 @@ const clientSchema = z.object({
   email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
   company: z.string().optional(),
+  country: z.string().optional(),
   communication_channel: z.string().min(1),
   communication_handle: z.string().optional(),
   notes: z.string().optional(),

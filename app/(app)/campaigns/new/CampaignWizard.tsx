@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 interface Client {
   id: string
   name: string
+  country: string | null
 }
 
 interface Page {
@@ -22,6 +23,7 @@ interface Page {
   avg_cpm: number | null
   reliability_score: number | null
   avg_engagement_rate: number | null
+  country: string | null
 }
 
 interface SelectedPage {
@@ -64,11 +66,13 @@ export function CampaignWizard({ clients, pages }: { clients: Client[]; pages: P
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [matchCampaign, setMatchCampaign] = useState(false)
 
   const stepIndex = STEPS.indexOf(step)
   const totalCost = state.selected_pages.reduce((sum, p) => sum + p.cost, 0)
   const margin = state.client_pays - totalCost
   const marginPct = state.client_pays > 0 ? (margin / state.client_pays) * 100 : 0
+  const selectedClient = clients.find(c => c.id === state.client_id)
 
   function next() { setStep(STEPS[stepIndex + 1]) }
   function back() { setStep(STEPS[stepIndex - 1]) }
@@ -181,8 +185,31 @@ export function CampaignWizard({ clients, pages }: { clients: Client[]; pages: P
           {step === 'pages' && (
             <div className="space-y-4">
               <p className="text-sm text-gray-500">Select pages to run this campaign. Suggested pages are ranked by reliability and budget fit.</p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMatchCampaign(m => !m)}
+                  className={cn(
+                    'px-3 py-1.5 rounded text-sm font-medium border transition-colors',
+                    matchCampaign
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white hover:bg-gray-50'
+                  )}
+                >
+                  {matchCampaign ? '✓ Matching campaign' : 'Match campaign'}
+                </button>
+                {matchCampaign && selectedClient?.country && (
+                  <span className="text-xs text-gray-500">Filtering by: {selectedClient.country}</span>
+                )}
+              </div>
               <div className="space-y-2 max-h-72 overflow-y-auto">
                 {pages
+                  .filter(page => {
+                    if (!matchCampaign) return true
+                    const clientCountry = selectedClient?.country?.toLowerCase()
+                    if (!clientCountry) return true
+                    return !page.country || page.country.toLowerCase() === clientCountry
+                  })
                   .sort((a, b) => (b.reliability_score ?? 5) - (a.reliability_score ?? 5))
                   .map(page => {
                     const selected = state.selected_pages.some(p => p.page_id === page.id)

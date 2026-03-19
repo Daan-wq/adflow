@@ -5,8 +5,8 @@ export default async function NewCampaignPage() {
   const supabase = await createClient()
 
   const [{ data: clients }, { data: pages }] = await Promise.all([
-    supabase.from('clients').select('id, name').eq('status', 'active').order('name'),
-    supabase.from('pages').select('id, handle, niche, follower_count, avg_cpm, reliability_score, avg_engagement_rate').eq('status', 'active').order('handle'),
+    supabase.from('clients').select('id, name, country').eq('status', 'active').order('name'),
+    supabase.from('pages').select('id, handle, niche, follower_count, avg_cpm, reliability_score, avg_engagement_rate, country').eq('status', 'active').order('handle'),
   ])
 
   return (

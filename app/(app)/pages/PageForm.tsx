@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,6 +32,11 @@ interface Page {
   status: string
   created_at: string | null
   updated_at: string | null
+  page_link: string | null
+  platform: string | null
+  country: string | null
+  audience_country_pct: Array<{ country: string; pct: number }> | null
+  analytic_proof_url: string | null
 }
 
 interface PageFormProps {
@@ -39,6 +45,10 @@ interface PageFormProps {
 }
 
 export function PageForm({ page, action }: PageFormProps) {
+  const [audienceRows, setAudienceRows] = useState<Array<{ country: string; pct: number }>>(
+    page?.audience_country_pct ?? []
+  )
+
   return (
     <form action={action} className="space-y-4 max-w-lg">
       <div className="space-y-2">
@@ -153,6 +163,73 @@ export function PageForm({ page, action }: PageFormProps) {
           </select>
         </div>
       </div>
+      {/* Platform & Country */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="platform">Platform</Label>
+          <select
+            name="platform"
+            defaultValue={page?.platform ?? 'instagram'}
+            className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+          >
+            {['instagram', 'tiktok', 'facebook', 'youtube', 'twitter', 'other'].map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="country">Country</Label>
+          <Input id="country" name="country" placeholder="e.g. Netherlands" defaultValue={page?.country ?? ''} />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="page_link">Page Link</Label>
+        <Input id="page_link" name="page_link" type="url" placeholder="https://instagram.com/..." defaultValue={page?.page_link ?? ''} />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="analytic_proof_url">Analytic Proof URL</Label>
+        <Input id="analytic_proof_url" name="analytic_proof_url" type="url" placeholder="https://drive.google.com/..." defaultValue={page?.analytic_proof_url ?? ''} />
+      </div>
+
+      {/* Audience Country Breakdown */}
+      <div className="space-y-2">
+        <Label>Audience Country Breakdown</Label>
+        {audienceRows.map((row, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <Input
+              placeholder="Country code (e.g. NL)"
+              value={row.country}
+              onChange={e => setAudienceRows(rows => rows.map((r, idx) => idx === i ? { ...r, country: e.target.value } : r))}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              placeholder="%"
+              min="0"
+              max="100"
+              value={row.pct || ''}
+              onChange={e => setAudienceRows(rows => rows.map((r, idx) => idx === i ? { ...r, pct: parseFloat(e.target.value) || 0 } : r))}
+              className="w-20"
+            />
+            <button
+              type="button"
+              onClick={() => setAudienceRows(rows => rows.filter((_, idx) => idx !== i))}
+              className="text-red-500 text-sm px-2 py-1 hover:bg-red-50 rounded"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setAudienceRows(rows => [...rows, { country: '', pct: 0 }])}
+          className="text-sm text-gray-500 hover:text-gray-700 border border-dashed rounded px-3 py-1.5 w-full"
+        >
+          + Add country
+        </button>
+        <input type="hidden" name="audience_country_pct" value={JSON.stringify(audienceRows)} />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>
         <Textarea id="notes" name="notes" defaultValue={page?.notes ?? ''} rows={3} />

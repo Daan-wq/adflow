@@ -17,6 +17,11 @@ const pageSchema = z.object({
   reliability_score: z.string().optional().transform(v => v ? parseInt(v) : 5),
   notes: z.string().optional(),
   status: z.enum(['active', 'paused', 'blacklisted']),
+  page_link: z.string().url().optional().or(z.literal('')),
+  platform: z.string().optional(),
+  country: z.string().optional(),
+  audience_country_pct: z.string().optional(),
+  analytic_proof_url: z.string().url().optional().or(z.literal('')),
 })
 
 export async function createPageAction(formData: FormData): Promise<void> {
@@ -28,7 +33,14 @@ export async function createPageAction(formData: FormData): Promise<void> {
     throw new Error('Validation failed: ' + messages)
   }
 
-  const { error } = await supabase.from('pages').insert(parsed.data)
+  const data = {
+    ...parsed.data,
+    audience_country_pct: parsed.data.audience_country_pct
+      ? JSON.parse(parsed.data.audience_country_pct)
+      : [],
+  }
+
+  const { error } = await supabase.from('pages').insert(data)
   if (error) throw new Error(error.message)
 
   revalidatePath('/pages')
@@ -44,7 +56,14 @@ export async function updatePageAction(id: string, formData: FormData): Promise<
     throw new Error('Validation failed: ' + messages)
   }
 
-  const { error } = await supabase.from('pages').update(parsed.data).eq('id', id)
+  const data = {
+    ...parsed.data,
+    audience_country_pct: parsed.data.audience_country_pct
+      ? JSON.parse(parsed.data.audience_country_pct)
+      : [],
+  }
+
+  const { error } = await supabase.from('pages').update(data).eq('id', id)
   if (error) throw new Error(error.message)
 
   revalidatePath(`/pages/${id}`)
